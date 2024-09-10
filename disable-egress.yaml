@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-essential-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: dvwa
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.43.0.1/32  # API server's IP
+    ports:
+    - protocol: TCP
+      port: 443  # Kubernetes API server
+  - to:
+    - ipBlock:
+        cidr: 10.43.0.10/32  # Cluster DNS IP, adjust if different
+    ports:
+    - protocol: UDP
+      port: 53  # DNS

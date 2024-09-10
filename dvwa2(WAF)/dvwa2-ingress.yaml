@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dvwa2-ingress
+  namespace: dvwa2
+  annotations:
+    nginx.ingress.kubernetes.io/limit-connections: "3"
+    nginx.ingress.kubernetes.io/limit-rpm: "10"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "0.5"
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/enable-owasp-modsecurity-crs: "true"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleEngine On
+      SecRequestBodyAccess On
+      SecAuditEngine RelevantOnly
+      SecAuditLogParts ABIJDEFHZ
+      SecAuditLog /var/log/modsec_audit.log
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: dvwa2.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dvwa2
+            port:
+              number: 80

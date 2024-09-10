@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dvwa2
+  namespace: dvwa2
+  labels:
+    app: dvwa2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dvwa2
+  template:
+    metadata:
+      labels:
+        app: dvwa2
+    spec:
+      containers:
+      - name: dvwa2
+        image: vulnerables/web-dvwa
+        ports:
+        - containerPort: 80

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-pod
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command: ["sleep", "3600"]  # Pod "œpi", ale dzia³a z uprawnieniami root
+    securityContext:
+      privileged: true  # Uprzywilejowany pod
+      runAsUser: 0  # Uruchom jako root
+    volumeMounts:
+    - name: host-volume
+      mountPath: /host  # Montowanie / katalogu hosta
+  volumes:
+  - name: host-volume
+    hostPath:
+      path: /

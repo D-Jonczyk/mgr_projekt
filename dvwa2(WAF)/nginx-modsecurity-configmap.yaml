@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-modsecurity-configmap
+  namespace: ingress-nginx
+data:
+  modsecurity.conf: |
+    SecRuleEngine On
+    SecRequestBodyAccess On
+    SecRule ARGS "test" "id:1001,phase:2,deny,status:403,msg:'Test Block'"
+    SecAction "id:10000,phase:1,nolog,pass,t:none,setvar:tx.brute_force_counter=0"
+
+    # Increment brute force counter for login attempts
+    SecRule REQUEST_URI "@contains /vulnerabilities/brute/" "id:10001,phase:2,pass,t:none,setvar:tx.brute_force_counter=+1,expirevar:tx.brute_force_counter=60"
+    
+    # Block IP after 5 failed attempts
+    SecRule TX:BRUTE_FORCE_COUNTER "@ge 5" "id:10002,phase:2,deny,status:403,msg:'Brute Force Attack Detected',setvar:tx.blocked_ip_counter=+1,setvar:tx.brute_force_counter=0"
+    
+    # Reset the brute force counter if the login is successful
+    SecRule RESPONSE_STATUS "@streq 200" "id:10003,phase:3,nolog,pass,t:none,setvar:tx.brute_force_counter=0"
+    
